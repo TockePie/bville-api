@@ -12,3 +12,88 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+enum OrderStatus {
+  pending
+  created
+  updated
+  shipped
+  canceled
+}
+
+model Order {
+  guid                String      @id @default(uuid())
+  status              OrderStatus @default(pending)
+  tracking_number     String?
+  partnerOrderId      String      @unique
+  comment             String?     @db.Text
+  deliveryAddressType String
+  cashOnDelivery      Float       @default(0)
+  deliveryCompanyName String
+  deliveryAddressId   String
+  customerName        String
+  deliveryCity        String
+  deliveryPhone       String
+  deliveryStreet      String
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  orderFiles OrderFile[]
+  orderItems OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id            Int     @id @default(autoincrement())
+  orderGuid     String
+  supplier_code String
+  RZ_code       Int
+  quantity      Int
+  price         Float
+  SerialNumber  String? @db.Text
+
+  order Order @relation(fields: [orderGuid], references: [guid], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+model OrderFile {
+  file_guid  String   @id @default(uuid())
+  orderGuid  String
+  filePath   String
+  fileName   String
+  uploadedAt DateTime @default(now())
+
+  order Order @relation(fields: [orderGuid], references: [guid], onDelete: Cascade)
+
+  @@map("order_files")
+}
+
+model Product {
+  productID       Int              @id
+  categoryID      Int
+  name            String           @db.VarChar(255)
+  description     String?          @db.Text
+  Price           Float
+  in_stock        Int
+  items_sold      Int
+  enabled         Int
+  product_code    String           @db.VarChar(25)
+  default_picture Int?
+  date_added      DateTime?        @db.DateTime
+  date_modified   DateTime?        @db.DateTime
+  productPictures ProductPicture[]
+
+  @@map("products")
+}
+
+model ProductPicture {
+  photoID   Int    @id
+  productID Int
+  filename  String @db.VarChar(255)
+
+  product Product @relation(fields: [productID], references: [productID], onDelete: Cascade)
+
+  @@map("product_pictures")
+}
