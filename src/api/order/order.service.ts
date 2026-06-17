@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 
-import { PrismaService } from '@/config/prisma/prisma.service'
-
+import { PrismaService } from '../../config/prisma/prisma.service'
+import { OrderStatus } from '../../generated/prisma/enums'
 import { CreateOrderDto } from './dto/create-order.dto'
 
 @Injectable()
@@ -40,6 +40,27 @@ export class OrderService {
     return {
       guid: result.partnerOrderId,
       status: 'pending'
+    }
+  }
+
+  async cancelOrder(guid: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { partnerOrderId: guid }
+    })
+    if (!order) {
+      throw new BadRequestException({ error: 'Замовлення не знайдено' })
+    }
+
+    const updatedOrder = await this.prisma.order.update({
+      where: { partnerOrderId: guid },
+      data: {
+        status: OrderStatus.canceled
+      }
+    })
+
+    return {
+      partnerOrderId: updatedOrder.partnerOrderId,
+      status: 'canceled'
     }
   }
 }
