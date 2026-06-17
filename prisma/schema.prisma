@@ -45,7 +45,7 @@ model Order {
 }
 
 model OrderItem {
-  id            Int     @id @default(autoincrement())
+  id            String  @id @default(uuid())
   orderGuid     String
   supplier_code String
   RZ_code       Int
@@ -68,32 +68,4 @@ model OrderFile {
   order Order @relation(fields: [orderGuid], references: [guid], onDelete: Cascade)
 
   @@map("order_files")
-}
-
-model Product {
-  productID       Int              @id
-  categoryID      Int
-  name            String           @db.VarChar(255)
-  description     String?          @db.Text
-  Price           Float
-  in_stock        Int
-  items_sold      Int
-  enabled         Int
-  product_code    String           @db.VarChar(25)
-  default_picture Int?
-  date_added      DateTime?        @db.DateTime
-  date_modified   DateTime?        @db.DateTime
-  productPictures ProductPicture[]
-
-  @@map("products")
-}
-
-model ProductPicture {
-  photoID   Int    @id
-  productID Int
-  filename  String @db.VarChar(255)
-
-  product Product @relation(fields: [productID], references: [productID], onDelete: Cascade)
-
-  @@map("product_pictures")
 }
