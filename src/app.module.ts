@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
 import { OrderModule } from './api/order/order.module'
+import { SupplierParserModule } from './api/supplier-parser/supplier-parser.module'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { validateEnv } from './config/env.validation'
@@ -12,7 +13,8 @@ import { validateEnv } from './config/env.validation'
       isGlobal: true,
       validate: validateEnv
     }),
-    OrderModule
+    OrderModule,
+    SupplierParserModule
   ],
   controllers: [AppController],
   providers: [AppService]
