@@ -69,3 +69,15 @@ model OrderFile {
 
   @@map("order_files")
 }
+
+model RozetkaProduct {
+  code     String  @id @unique
+  RZ_code  Int?
+  category String?
+  brand    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("rozetka_products")
+}

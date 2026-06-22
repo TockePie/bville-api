@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios'
-import { Injectable, Logger } from '@nestjs/common'
+import { BadGatewayException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as cheerio from 'cheerio'
-import { catchError, firstValueFrom, of } from 'rxjs'
+import { catchError, firstValueFrom, throwError } from 'rxjs'
 
 import { EnvConfig } from '../../config/env.validation'
 
@@ -35,7 +35,9 @@ export class SupplierParserService {
             `Unable to fetch items from supplier: ${err.message}`
           )
 
-          return of({ data: '' })
+          return throwError(
+            () => new BadGatewayException('Supplier website is unavailable.')
+          )
         })
       )
     )
