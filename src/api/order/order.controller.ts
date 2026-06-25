@@ -2,11 +2,16 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Param,
   Post,
-  Put
+  Put,
+  Res
 } from '@nestjs/common'
+import { type Response } from 'express'
+
+import { DtoError } from '@/config/decorators/dto-error.decorator'
 
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
@@ -17,9 +22,9 @@ import { OrderService } from './order.service'
 export class OrderController {
   constructor(private orderService: OrderService) {}
 
-  //TODO: make 400 error object like: {"error": "Недійсні дані замовлення"}
   @Post('create')
   @HttpCode(250)
+  @DtoError({ error: 'Недійсні дані замовлення' })
   async createOrder(@Body() createOrderDto: CreateOrderDto) {
     return this.orderService.createOrder(createOrderDto)
   }
@@ -32,10 +37,27 @@ export class OrderController {
 
   @Put('edit/:guid')
   @HttpCode(250)
+  @DtoError({ error: 'Недійсні параметри запиту' })
   async editOder(
     @Param('guid') guid: string,
     @Body() updateOrderDto: UpdateOrderDto
   ) {
     return await this.orderService.editOrder(guid, updateOrderDto)
+  }
+
+  @Get('status/:guid')
+  async checkOrderStatus(
+    @Param('guid') guid: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const data = await this.orderService.checkOrderStatus(guid)
+
+    if (data.status === 'pending') {
+      res.status(250)
+    } else {
+      res.status(200)
+    }
+
+    return data
   }
 }
