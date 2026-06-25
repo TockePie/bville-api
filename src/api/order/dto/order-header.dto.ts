@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer'
 import {
+  ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
   IsNumber,
@@ -8,7 +9,7 @@ import {
   ValidateNested
 } from 'class-validator'
 
-import { CreateOrderProductDto } from './create-order-product'
+import { CreateOrderProductDto } from './create-order-product.dto'
 
 export class OrderHeaderDto {
   @IsString()
@@ -51,8 +52,8 @@ export class OrderHeaderDto {
   deliveryStreet: string
 
   @IsArray()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => CreateOrderProductDto)
-  @IsNotEmpty()
   products: CreateOrderProductDto[]
 }

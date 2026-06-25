@@ -22,7 +22,7 @@ enum OrderStatus {
 }
 
 model Order {
-  guid                String      @id @default(uuid())
+  guid                String      @id
   status              OrderStatus @default(pending)
   tracking_number     String?
   partnerOrderId      String      @unique

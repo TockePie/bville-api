@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer'
 import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator'
 
 export class CreateOrderProductDto {
@@ -5,8 +6,10 @@ export class CreateOrderProductDto {
   @IsNotEmpty()
   supplier_code: string
 
+  @IsNumber()
   @IsNotEmpty()
-  RZ_code: string | number
+  @Transform(({ value }) => parseInt(value, 10))
+  RZ_code: number
 
   @IsNumber()
   @IsNotEmpty()
