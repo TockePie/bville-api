@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { create } from 'xmlbuilder2'
 
-import { PrismaService } from '@/config/prisma/prisma.service'
-
+import { PrismaService } from '../../config/prisma/prisma.service'
 import { SupplierParserService } from '../supplier-parser/supplier-parser.service'
 
 @Injectable()

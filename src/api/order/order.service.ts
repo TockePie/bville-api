@@ -5,9 +5,8 @@ import {
   NotFoundException
 } from '@nestjs/common'
 
-import { Prisma } from '@/generated/prisma/client'
-
 import { PrismaService } from '../../config/prisma/prisma.service'
+import { Prisma } from '../../generated/prisma/client'
 import { OrderStatus } from '../../generated/prisma/enums'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
