@@ -18,6 +18,7 @@ export class DtoErrorInterceptor implements NestInterceptor {
     return next.handle().pipe(
       catchError((error: unknown) => {
         if (error instanceof BadRequestException) {
+          console.log({ error })
           const customError = this.reflector.get<
             Record<string, any> | string | undefined
           >(DTO_ERROR_METADATA_KEY, context.getHandler())

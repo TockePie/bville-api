@@ -11,8 +11,7 @@ import {
 } from '@nestjs/common'
 import { type Response } from 'express'
 
-import { DtoError } from '@/config/decorators/dto-error.decorator'
-
+import { DtoError } from '../../config/decorators/dto-error.decorator'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
 import { OrderService } from './order.service'
