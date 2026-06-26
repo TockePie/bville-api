@@ -1,4 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { randomUUID } from 'node:crypto'
+import { createWriteStream, existsSync, mkdirSync } from 'node:fs'
+import path from 'node:path'
+import { Readable } from 'node:stream'
+
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException
+} from '@nestjs/common'
 
 import { CatchPrisma } from '../../config/decorators/catch-prisma-error.decorator'
 import { PrismaService } from '../../config/prisma/prisma.service'
@@ -8,7 +17,13 @@ import { UpdateOrderDto } from './dto/update-order.dto'
 
 @Injectable()
 export class OrderService {
-  constructor(private prisma: PrismaService) {}
+  private uploadDir = path.resolve(__dirname, '..', '..', 'uploads')
+
+  constructor(private prisma: PrismaService) {
+    if (!existsSync(this.uploadDir)) {
+      mkdirSync(this.uploadDir, { recursive: true })
+    }
+  }
 
   @CatchPrisma({ P2002: 'Товар з таким partnerOrderId вже існує' })
   async createOrder(createOrderDto: CreateOrderDto) {
@@ -105,6 +120,51 @@ export class OrderService {
       status: response.status,
       tracking_number: response.tracking_number,
       products: response.orderItems
+    }
+  }
+
+  async uploadFile(guid: string, fileStream: Readable) {
+    const order = await this.prisma.order.findUnique({
+      where: { guid },
+      select: { guid: true }
+    })
+    if (!order) {
+      throw new BadRequestException({ error: 'Замовлення не знайдено' })
+    }
+
+    const fileGuid = randomUUID()
+    const fileNameOnDisk = `${fileGuid}.bin`
+    const absoluteFilePath = path.join(this.uploadDir, fileNameOnDisk)
+    const relativeFilePath = `uploads/${fileNameOnDisk}`
+
+    await new Promise((resolve, reject) => {
+      const writeStream = createWriteStream(absoluteFilePath)
+      fileStream.pipe(writeStream)
+
+      writeStream.on('finish', resolve)
+      writeStream.on('error', (err) =>
+        reject(
+          new InternalServerErrorException({
+            error: 'Помилка під час збереження',
+            details: err
+          })
+        )
+      )
+    })
+
+    await this.prisma.orderFile.create({
+      data: {
+        file_guid: fileGuid,
+        orderGuid: order.guid,
+        filePath: relativeFilePath,
+        fileName: `file_${fileGuid}.bin`
+      }
+    })
+
+    return {
+      success: true,
+      file_guid: fileGuid,
+      message: 'Файл успішно завантажено'
     }
   }
 }

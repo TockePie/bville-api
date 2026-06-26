@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios'
 import { BadGatewayException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import * as cheerio from 'cheerio'
+import { CheerioAPI, load } from 'cheerio'
 import { Element } from 'domhandler'
 import { catchError, firstValueFrom, throwError } from 'rxjs'
 
@@ -54,7 +54,7 @@ export class SupplierParserService {
   }
 
   private extractItemsFromHtm(htm: string): ParsedSupplierItem[] {
-    const $ = cheerio.load(htm)
+    const $ = load(htm)
     const items: ParsedSupplierItem[] = []
 
     $('tr.R8').each((_, element) => {
@@ -68,10 +68,7 @@ export class SupplierParserService {
     return items
   }
 
-  private mapRowToItem(
-    $: cheerio.CheerioAPI,
-    element: Element
-  ): ParsedSupplierItem {
+  private mapRowToItem($: CheerioAPI, element: Element): ParsedSupplierItem {
     const tds = $(element).find('td')
 
     return {

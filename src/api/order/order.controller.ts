@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -7,9 +8,10 @@ import {
   Param,
   Post,
   Put,
+  Req,
   Res
 } from '@nestjs/common'
-import { type Response } from 'express'
+import { type Request, type Response } from 'express'
 
 import { DtoError } from '../../config/decorators/dto-error.decorator'
 import { CreateOrderDto } from './dto/create-order.dto'
@@ -58,5 +60,16 @@ export class OrderController {
     }
 
     return data
+  }
+
+  @Post(':guid/upload')
+  async uploadFile(@Param('guid') guid: string, @Req() req: Request) {
+    if (req.headers['content-type'] !== 'application/octet-stream') {
+      throw new BadRequestException({
+        error: 'Очікується формат application/octet-stream'
+      })
+    }
+
+    return await this.orderService.uploadFile(guid, req)
   }
 }
