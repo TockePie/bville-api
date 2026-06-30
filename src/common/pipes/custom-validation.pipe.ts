@@ -8,7 +8,10 @@ import {
 import { type ValidationPipeOptions } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 
-import { DTO_ERROR_METADATA_KEY } from '../decorators/dto-error.decorator'
+import {
+  CustomErrorType,
+  DTO_ERROR_METADATA_KEY
+} from '../decorators/dto-error.decorator'
 
 @Injectable()
 export class CustomValidationPipe extends ValidationPipe {
@@ -27,23 +30,21 @@ export class CustomValidationPipe extends ValidationPipe {
     value: unknown,
     metadata: ArgumentMetadata
   ): Promise<unknown> {
-    try {
-      return await super.transform(value, metadata)
-    } catch (error: unknown) {
-      if (error instanceof BadRequestException) {
-        const target = metadata.metatype
-
-        if (target) {
-          const customError = this.reflector.get<
-            Record<string, unknown> | string | undefined
-          >(DTO_ERROR_METADATA_KEY, target)
-
-          if (customError) {
-            throw new BadRequestException(customError)
-          }
-        }
+    return await super.transform(value, metadata).catch((error: unknown) => {
+      if (!(error instanceof BadRequestException) || !metadata.metatype) {
+        throw error
       }
+
+      const customError = this.reflector.get<CustomErrorType | undefined>(
+        DTO_ERROR_METADATA_KEY,
+        metadata.metatype
+      )
+
+      if (customError) {
+        throw new BadRequestException(customError)
+      }
+
       throw error
-    }
+    })
   }
 }
