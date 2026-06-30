@@ -5,11 +5,15 @@ import { Readable } from 'node:stream'
 
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 
+import { CatchPrisma } from '@/config/decorators/catch-prisma-error.decorator'
+
+import { PrismaService } from '../../config/prisma/prisma.service'
+
 @Injectable()
 export class FileService {
   private uploadDir = path.resolve(__dirname, '..', '..', 'uploads')
 
-  constructor() {
+  constructor(private prisma: PrismaService) {
     if (!existsSync(this.uploadDir)) {
       mkdirSync(this.uploadDir, { recursive: true })
     }
@@ -39,6 +43,18 @@ export class FileService {
     return {
       fileGuid,
       relativeFilePath
+    }
+  }
+
+  @CatchPrisma({ P2025: 'файл не знайдено' })
+  async deleteFile(fileGuid: string) {
+    await this.prisma.orderFile.delete({
+      where: { file_guid: fileGuid }
+    })
+
+    return {
+      success: true,
+      message: 'Файл успішно видалено'
     }
   }
 }
