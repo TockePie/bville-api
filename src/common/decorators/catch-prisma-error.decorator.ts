@@ -22,12 +22,17 @@ export function CatchPrisma(errorMap: PrismaErrorMap) {
     ): Promise<unknown> {
       try {
         return await originalMethod.apply(this, args)
-      } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          if (errorMap[error.code]) {
-            throw new BadRequestException({ error: errorMap[error.code] })
-          }
+      } catch (error: unknown) {
+        if (!(error instanceof Prisma.PrismaClientKnownRequestError)) {
+          throw error
         }
+
+        const errorCode = errorMap[error.code]
+
+        if (errorCode) {
+          throw new BadRequestException({ error: errorCode })
+        }
+
         throw error
       }
     } as T

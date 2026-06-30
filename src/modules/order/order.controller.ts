@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   HttpCode,
   Param,
   Post,
@@ -63,8 +64,12 @@ export class OrderController {
   }
 
   @Post(':guid/upload')
-  async uploadFile(@Param('guid') guid: string, @Req() req: Request) {
-    if (req.headers['content-type'] !== 'application/octet-stream') {
+  async uploadFile(
+    @Param('guid') guid: string,
+    @Req() req: Request,
+    @Headers('content-type') contentType: string
+  ) {
+    if (contentType !== 'application/octet-stream') {
       throw new BadRequestException({
         error: 'Очікується формат application/octet-stream'
       })

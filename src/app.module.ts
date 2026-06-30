@@ -4,6 +4,7 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 
 import { DtoErrorInterceptor } from './common/interceptors/dto-error.interceptor'
 import { validateEnv } from './config/env.validation'
+import { FallbackController } from './modules/fallback.controller'
 import { FileModule } from './modules/file/file.module'
 import { OrderModule } from './modules/order/order.module'
 import { RozetkaModule } from './modules/rozetka/rozetka.module'
@@ -20,6 +21,7 @@ import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.
     RozetkaModule,
     SupplierParserModule
   ],
+  controllers: [FallbackController],
   providers: [
     {
       provide: APP_PIPE,
