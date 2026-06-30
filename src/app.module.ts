@@ -2,14 +2,12 @@ import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 
-import { FileModule } from './api/file/file.module'
-import { OrderModule } from './api/order/order.module'
-import { RozetkaModule } from './api/rozetka/rozetka.module'
-import { SupplierParserModule } from './api/supplier-parser/supplier-parser.module'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
+import { DtoErrorInterceptor } from './common/interceptors/dto-error.interceptor'
 import { validateEnv } from './config/env.validation'
-import { DtoErrorInterceptor } from './config/interceptors/dto-error.interceptor'
+import { FileModule } from './modules/file/file.module'
+import { OrderModule } from './modules/order/order.module'
+import { RozetkaModule } from './modules/rozetka/rozetka.module'
+import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.module'
 
 @Module({
   imports: [
@@ -22,9 +20,7 @@ import { DtoErrorInterceptor } from './config/interceptors/dto-error.interceptor
     RozetkaModule,
     SupplierParserModule
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

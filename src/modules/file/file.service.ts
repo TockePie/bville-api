@@ -5,9 +5,8 @@ import { Readable } from 'node:stream'
 
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 
-import { CatchPrisma } from '@/config/decorators/catch-prisma-error.decorator'
-
-import { PrismaService } from '../../config/prisma/prisma.service'
+import { CatchPrisma } from '../../common/decorators/catch-prisma-error.decorator'
+import { PrismaService } from '../../database/prisma.service'
 
 @Injectable()
 export class FileService {

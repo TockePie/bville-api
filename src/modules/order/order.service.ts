@@ -2,8 +2,8 @@ import { Readable } from 'node:stream'
 
 import { BadRequestException, Injectable } from '@nestjs/common'
 
-import { CatchPrisma } from '../../config/decorators/catch-prisma-error.decorator'
-import { PrismaService } from '../../config/prisma/prisma.service'
+import { CatchPrisma } from '../../common/decorators/catch-prisma-error.decorator'
+import { PrismaService } from '../../database/prisma.service'
 import { OrderStatus } from '../../generated/prisma/enums'
 import { FileService } from '../file/file.service'
 import { CreateOrderDto } from './dto/create-order.dto'
