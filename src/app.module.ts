@@ -2,6 +2,7 @@ import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 
+import { FileModule } from './api/file/file.module'
 import { OrderModule } from './api/order/order.module'
 import { RozetkaModule } from './api/rozetka/rozetka.module'
 import { SupplierParserModule } from './api/supplier-parser/supplier-parser.module'
@@ -17,6 +18,7 @@ import { DtoErrorInterceptor } from './config/interceptors/dto-error.interceptor
       validate: validateEnv
     }),
     OrderModule,
+    FileModule,
     RozetkaModule,
     SupplierParserModule
   ],
