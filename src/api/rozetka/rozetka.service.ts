@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common'
 import { create } from 'xmlbuilder2'
 
 import { PrismaService } from '../../config/prisma/prisma.service'
-import { SupplierParserService } from '../supplier-parser/supplier-parser.service'
+import {
+  ParsedSupplierItem,
+  SupplierParserService
+} from '../supplier-parser/supplier-parser.service'
 
 @Injectable()
 export class RozetkaService {
@@ -12,24 +15,43 @@ export class RozetkaService {
   ) {}
 
   async getProducts() {
-    const data = await this.supplierParserService.parseHtmPrices()
+    const supplierItems = await this.supplierParserService.parseHtmPrices()
 
     const dbData = await this.fetchData()
     const dbDataMap = new Map(dbData.map((item) => [item.code, item]))
 
+    return this.generateXml(supplierItems, dbDataMap)
+  }
+
+  async fetchData() {
+    return await this.prismaService.rozetkaProduct.findMany({
+      omit: { createdAt: true, updatedAt: true }
+    })
+  }
+
+  private parseStockData(rawStock: string) {
+    const isMoreThanTen = rawStock === '> 10'
+    const parsedQty = parseInt(rawStock, 10)
+    const hasStock = !Number.isNaN(parsedQty) && parsedQty > 0
+
+    const qty = isMoreThanTen ? 11 : hasStock ? parsedQty : 0
+    const available = isMoreThanTen || hasStock ? 'Y' : 'N'
+
+    return { qty, available }
+  }
+
+  private generateXml(
+    supplierItems: ParsedSupplierItem[],
+    itemsMap: Map<string, Awaited<ReturnType<this['fetchData']>>[number]>
+  ) {
     const doc = create({ encoding: 'UTF-8' }).ele('items')
 
-    for (const item of data) {
+    for (const item of supplierItems) {
       const { rawStock, ...product } = item
 
-      const dbItem = dbDataMap.get(item.code)
+      const dbItem = itemsMap.get(item.code)
 
-      const isMoreThanTen = rawStock === '> 10'
-      const parsedQty = parseInt(rawStock, 10)
-      const hasStock = !Number.isNaN(parsedQty) && parsedQty > 0
-
-      const qty = isMoreThanTen ? 11 : hasStock ? parsedQty : 0
-      const available = isMoreThanTen || hasStock ? 'Y' : 'N'
+      const { qty, available } = this.parseStockData(rawStock)
 
       doc.ele('item').ele({
         ...product,
@@ -42,11 +64,5 @@ export class RozetkaService {
     }
 
     return doc.end({ prettyPrint: true })
-  }
-
-  async fetchData() {
-    return await this.prismaService.rozetkaProduct.findMany({
-      omit: { createdAt: true, updatedAt: true }
-    })
   }
 }
