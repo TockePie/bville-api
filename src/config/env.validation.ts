@@ -11,7 +11,8 @@ export const envSchema = z.object({
   DATABASE_USER: z.string(),
   DATABASE_PASSWORD: z.string(),
   DATABASE_NAME: z.string(),
-  SUPPLIER_URL: z.url()
+  SUPPLIER_URL: z.url(),
+  ROZETKA_API_KEY: z.string()
 })
 
 export type EnvConfig = z.infer<typeof envSchema>

@@ -10,17 +10,19 @@ import {
   Post,
   Put,
   Req,
-  Res
+  Res,
+  UseGuards
 } from '@nestjs/common'
 import { type Request, type Response } from 'express'
 
 import { DtoError } from '../../common/decorators/dto-error.decorator'
+import { RobotGuard } from '../../common/guards/robot.guard'
 import { CreateOrderDto } from './dto/create-order.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
 import { OrderService } from './order.service'
 
-//TODO: Use guard to check robot's API
 @Controller('order')
+@UseGuards(RobotGuard)
 export class OrderController {
   constructor(private orderService: OrderService) {}
 
