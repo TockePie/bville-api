@@ -22,8 +22,7 @@ export class RozetkaService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    this.logger.log(`Fetching products to them into cache at ${Date.now()}`)
-    await this.getProducts()
+    await this.handleCronRefresh()
   }
 
   @Cron('1,31 * * * *')

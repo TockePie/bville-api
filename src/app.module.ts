@@ -16,11 +16,11 @@ import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.
       isGlobal: true,
       validate: validateEnv
     }),
-    OrderModule,
     FileModule,
+    OrderModule,
     RozetkaModule,
-    SupplierParserModule,
-    ScheduleModule.forRoot()
+    ScheduleModule.forRoot(),
+    SupplierParserModule
   ],
   providers: [
     {
