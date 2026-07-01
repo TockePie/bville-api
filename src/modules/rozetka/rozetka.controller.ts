@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get, Header } from '@nestjs/common'
 
 import { RozetkaService } from './rozetka.service'
 
@@ -6,8 +6,8 @@ import { RozetkaService } from './rozetka.service'
 export class RozetkaController {
   constructor(private rozetkaService: RozetkaService) {}
 
-  //TODO: Make caching for this route
   @Get('products.xml')
+  @Header('Content-Type', 'application/xml')
   async getProducts() {
     return await this.rozetkaService.getProducts()
   }

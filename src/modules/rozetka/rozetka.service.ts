@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Cron } from '@nestjs/schedule'
+import type { Cache } from 'cache-manager'
 import { create } from 'xmlbuilder2'
 
 import { PrismaService } from '../../database/prisma.service'
@@ -8,19 +11,48 @@ import {
 } from '../supplier-parser/supplier-parser.service'
 
 @Injectable()
-export class RozetkaService {
+export class RozetkaService implements OnModuleInit {
+  private logger = new Logger(RozetkaService.name)
+  private readonly CACHE_KEY = 'supplier_products'
+
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private prismaService: PrismaService,
     private supplierParserService: SupplierParserService
   ) {}
 
+  async onModuleInit() {
+    this.logger.log(`Fetching products to them into cache at ${Date.now()}`)
+    await this.getProducts()
+  }
+
+  @Cron('1,31 * * * *')
+  async handleCronRefresh() {
+    this.logger.log(`Fetching products to them into cache at ${Date.now()}`)
+    await this.refreshProductsCache()
+  }
+
   async getProducts() {
+    const cachedData = await this.cacheManager.get<string>(this.CACHE_KEY)
+
+    if (!cachedData) {
+      return await this.refreshProductsCache()
+    }
+
+    return cachedData
+  }
+
+  private async refreshProductsCache() {
     const supplierItems = await this.supplierParserService.parseHtmPrices()
 
     const dbData = await this.fetchData()
     const dbDataMap = new Map(dbData.map((item) => [item.code, item]))
 
-    return this.generateXml(supplierItems, dbDataMap)
+    const result = this.generateXml(supplierItems, dbDataMap)
+
+    await this.cacheManager.set(this.CACHE_KEY, result)
+
+    return result
   }
 
   async fetchData() {

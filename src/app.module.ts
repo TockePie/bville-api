@@ -1,6 +1,7 @@
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { ScheduleModule } from '@nestjs/schedule'
 
 import { DtoErrorInterceptor } from './common/interceptors/dto-error.interceptor'
 import { validateEnv } from './config/env.validation'
@@ -18,7 +19,8 @@ import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.
     OrderModule,
     FileModule,
     RozetkaModule,
-    SupplierParserModule
+    SupplierParserModule,
+    ScheduleModule.forRoot()
   ],
   providers: [
     {

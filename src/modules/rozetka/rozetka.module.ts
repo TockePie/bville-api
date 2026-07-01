@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
 
 import { PrismaModule } from '../../database/prisma.module'
@@ -6,7 +7,13 @@ import { RozetkaController } from './rozetka.controller'
 import { RozetkaService } from './rozetka.service'
 
 @Module({
-  imports: [PrismaModule, SupplierParserModule],
+  imports: [
+    CacheModule.register({
+      ttl: 360000
+    }),
+    PrismaModule,
+    SupplierParserModule
+  ],
   controllers: [RozetkaController],
   providers: [RozetkaService]
 })
