@@ -1,8 +1,9 @@
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
 
+import { AllExceptionsFilter } from './common/filters/all-exception.filter'
 import { DtoErrorInterceptor } from './common/interceptors/dto-error.interceptor'
 import { validateEnv } from './config/env.validation'
 import { FileModule } from './modules/file/file.module'
@@ -33,6 +34,10 @@ import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.
     {
       provide: APP_INTERCEPTOR,
       useClass: DtoErrorInterceptor
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter
     }
   ]
 })
