@@ -4,9 +4,11 @@ import { BadRequestException, Injectable } from '@nestjs/common'
 
 import { CatchPrisma } from '../../common/decorators/catch-prisma-error.decorator'
 import { PrismaService } from '../../database/prisma.service'
+import { Prisma } from '../../generated/prisma/client'
 import { OrderStatus } from '../../generated/prisma/enums'
 import { FileService } from '../file/file.service'
 import { CreateOrderDto } from './dto/create-order.dto'
+import { OrderQueryDto } from './dto/order-query.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
 
 @Injectable()
@@ -15,6 +17,51 @@ export class OrderService {
     private prisma: PrismaService,
     private fileService: FileService
   ) {}
+
+  async getOrders(query: OrderQueryDto) {
+    const { page, pageSize, status, search, sortBy, sortOrder } = query
+
+    const skip = (page - 1) * pageSize
+
+    const where: Prisma.OrderWhereInput = {}
+
+    if (status) {
+      where.status = status
+    }
+    if (search) {
+      where.OR = [
+        { customerName: { contains: search } },
+        { deliveryPhone: { contains: search } },
+        { partnerOrderId: { contains: search } },
+        { tracking_number: { contains: search } }
+      ]
+    }
+
+    const [orders, totalCount] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: {
+          [sortBy]: sortOrder
+        },
+        include: {
+          _count: {
+            select: { orderItems: true, orderFiles: true }
+          }
+        }
+      }),
+      this.prisma.order.count({ where })
+    ])
+
+    return {
+      orders,
+      totalCount,
+      page,
+      pageSize,
+      totalPages: Math.ceil(totalCount / pageSize)
+    }
+  }
 
   @CatchPrisma({ P2002: 'Товар з таким partnerOrderId вже існує' })
   async createOrder(createOrderDto: CreateOrderDto) {

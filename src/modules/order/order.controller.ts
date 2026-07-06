@@ -9,6 +9,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   Res,
   UseGuards
@@ -18,6 +19,7 @@ import { type Request, type Response } from 'express'
 import { DtoError } from '../../common/decorators/dto-error.decorator'
 import { RobotGuard } from '../../common/guards/robot.guard'
 import { CreateOrderDto } from './dto/create-order.dto'
+import { OrderQueryDto } from './dto/order-query.dto'
 import { UpdateOrderDto } from './dto/update-order.dto'
 import { OrderService } from './order.service'
 
@@ -25,6 +27,12 @@ import { OrderService } from './order.service'
 @UseGuards(RobotGuard)
 export class OrderController {
   constructor(private orderService: OrderService) {}
+
+  //TODO: This endpoint should be accessible only via JWT Token
+  @Get()
+  async getOrders(@Query() query: OrderQueryDto) {
+    return await this.orderService.getOrders(query)
+  }
 
   @Post('create')
   @HttpCode(250)
