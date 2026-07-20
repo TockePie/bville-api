@@ -33,7 +33,8 @@ export class PrismaService
       }),
       database: configService.get('DATABASE_NAME', {
         infer: true
-      })
+      }),
+      allowPublicKeyRetrieval: true
     })
 
     super({ adapter })

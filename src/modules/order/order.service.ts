@@ -18,7 +18,7 @@ export class OrderService {
     private fileService: FileService
   ) {}
 
-  async getOrders(query: OrderQueryDto) {
+  async getOrdersForTable(query: OrderQueryDto) {
     const { page, pageSize, status, search, sortBy, sortOrder } = query
 
     const skip = (page - 1) * pageSize
@@ -46,9 +46,11 @@ export class OrderService {
           [sortBy]: sortOrder
         },
         include: {
-          _count: {
-            select: { orderItems: true, orderFiles: true }
-          }
+          orderItems: true,
+          orderFiles: true
+          // _count: {
+          //   select: { orderItems: true, orderFiles: true }
+          // }
         }
       }),
       this.prisma.order.count({ where })

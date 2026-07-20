@@ -48,7 +48,7 @@ model OrderItem {
   id            String  @id @default(uuid())
   orderGuid     String
   supplier_code String
-  RZ_code       Int
+  RZ_code       BigInt
   quantity      Int
   price         Float
   SerialNumber  String? @db.Text
@@ -72,7 +72,7 @@ model OrderFile {
 
 model RozetkaProduct {
   code     String  @id @unique
-  RZ_code  Int?
+  RZ_code  BigInt?
   category String?
   brand    String?
 

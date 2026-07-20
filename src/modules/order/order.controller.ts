@@ -30,8 +30,8 @@ export class OrderController {
 
   //TODO: This endpoint should be accessible only via JWT Token
   @Get()
-  async getOrders(@Query() query: OrderQueryDto) {
-    return await this.orderService.getOrders(query)
+  async getOrdersForTable(@Query() query: OrderQueryDto) {
+    return await this.orderService.getOrdersForTable(query)
   }
 
   @Post('create')
