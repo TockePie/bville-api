@@ -7,16 +7,17 @@ import { PrismaService } from '../../database/prisma.service'
 export class ManagerService {
   constructor(private prisma: PrismaService) {}
 
-  async createManager(login: string, password: string) {
-    const hashPass = await hash(password, 10)
+  //XXX
+  // async createManager(login: string, password: string) {
+  //   const hashPass = await hash(password, 10)
 
-    return await this.prisma.manager.create({
-      data: {
-        login,
-        password: hashPass
-      }
-    })
-  }
+  //   return await this.prisma.manager.create({
+  //     data: {
+  //       login,
+  //       password: hashPass
+  //     }
+  //   })
+  // }
 
   async validateCredentials(login: string, password: string) {
     const user = await this.findByLogin(login)
