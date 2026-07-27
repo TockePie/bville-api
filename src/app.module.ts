@@ -7,6 +7,7 @@ import { AllExceptionsFilter } from './common/filters/all-exception.filter'
 import { DtoErrorInterceptor } from './common/interceptors/dto-error.interceptor'
 import { validateEnv } from './config/env.validation'
 import { FileModule } from './modules/file/file.module'
+import { ManagerModule } from './modules/manager/manager.module'
 import { OrderModule } from './modules/order/order.module'
 import { RozetkaModule } from './modules/rozetka/rozetka.module'
 import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.module'
@@ -19,6 +20,7 @@ import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.
     }),
     FileModule,
     OrderModule,
+    ManagerModule,
     RozetkaModule,
     ScheduleModule.forRoot(),
     SupplierParserModule
