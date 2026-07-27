@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { Request, Response } from 'express'
 import { Observable } from 'rxjs'
 
-import { EnvConfig } from '../../config/env.validation'
+import { EnvConfig } from '../../config/env.schema'
 
 @Injectable()
 export class RobotGuard implements CanActivate {
