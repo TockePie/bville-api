@@ -6,6 +6,7 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { AllExceptionsFilter } from './common/filters/all-exception.filter'
 import { DtoErrorInterceptor } from './common/interceptors/dto-error.interceptor'
 import { validateEnv } from './config/env.validation'
+import { AuthModule } from './modules/auth/auth.module'
 import { FileModule } from './modules/file/file.module'
 import { ManagerModule } from './modules/manager/manager.module'
 import { OrderModule } from './modules/order/order.module'
@@ -18,11 +19,13 @@ import { SupplierParserModule } from './modules/supplier-parser/supplier-parser.
       isGlobal: true,
       validate: validateEnv
     }),
-    FileModule,
-    OrderModule,
-    ManagerModule,
-    RozetkaModule,
     ScheduleModule.forRoot(),
+
+    AuthModule,
+    FileModule,
+    ManagerModule,
+    OrderModule,
+    RozetkaModule,
     SupplierParserModule
   ],
   providers: [

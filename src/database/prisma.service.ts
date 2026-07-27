@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 
-import { EnvConfig } from '../config/env.validation'
+import { EnvConfig } from '../config/env.schema'
 import { PrismaClient } from '../generated/prisma/client'
 
 @Injectable()

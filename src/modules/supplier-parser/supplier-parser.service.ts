@@ -5,7 +5,7 @@ import { CheerioAPI, load } from 'cheerio'
 import { Element } from 'domhandler'
 import { catchError, firstValueFrom, throwError } from 'rxjs'
 
-import { EnvConfig } from '../../config/env.validation'
+import { EnvConfig } from '../../config/env.schema'
 
 export interface ParsedSupplierItem {
   code: string

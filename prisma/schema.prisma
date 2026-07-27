@@ -81,3 +81,11 @@ model RozetkaProduct {
 
   @@map("rozetka_products")
 }
+
+model Manager {
+  id        String   @id @default(uuid())
+  login     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
