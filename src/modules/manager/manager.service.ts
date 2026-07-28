@@ -19,12 +19,14 @@ export class ManagerService {
   //   })
   // }
 
-  async validateCredentials(login: string, password: string) {
-    const user = await this.findByLogin(login)
+  async validateCredentials(username: string, formPassword: string) {
+    const user = await this.findByLogin(username)
     if (!user) return null
 
-    const ok = await compare(password, user.password)
-    return ok ? user : null
+    const { password, ...filteredUser } = user
+
+    const isValidPassword = await compare(formPassword, password)
+    return isValidPassword ? filteredUser : null
   }
 
   private async findByLogin(login: string) {
