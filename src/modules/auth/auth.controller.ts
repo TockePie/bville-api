@@ -1,6 +1,7 @@
-import { Body, Controller, Post, Res } from '@nestjs/common'
+import { Body, Controller, Get, Post, Res, UseGuards } from '@nestjs/common'
 import type { Response } from 'express'
 
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 
@@ -30,5 +31,13 @@ export class AuthController {
     res.clearCookie('access_token')
 
     return { message: 'Logged out successfully' }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  checkAuth() {
+    return {
+      authenticated: true
+    }
   }
 }

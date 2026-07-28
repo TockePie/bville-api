@@ -29,6 +29,19 @@ export class ManagerService {
     return isValidPassword ? filteredUser : null
   }
 
+  async findById(id: string) {
+    return await this.prisma.manager.findUnique({
+      where: {
+        id
+      },
+      select: {
+        login: true,
+        name: true,
+        imageUrl: true
+      }
+    })
+  }
+
   private async findByLogin(login: string) {
     return await this.prisma.manager.findUnique({
       where: {
