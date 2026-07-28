@@ -1,21 +1,19 @@
-import { Controller, Post, Res, UseGuards } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
+import { Body, Controller, Post, Res } from '@nestjs/common'
 import type { Response } from 'express'
 
-import { CurrentUser } from '../../common/decorators/current-user.decorator'
 import { AuthService } from './auth.service'
+import { LoginDto } from './dto/login.dto'
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(
-    @CurrentUser() user: { id: string; login: string },
+    @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response
   ) {
-    const { access_token } = await this.authService.login(user)
+    const { access_token } = await this.authService.login(body)
 
     res.cookie('access_token', access_token, {
       httpOnly: true,
