@@ -62,17 +62,6 @@ export class RozetkaService implements OnModuleInit {
     })
   }
 
-  private parseStockData(rawStock: string) {
-    const isMoreThanTen = rawStock === '> 10'
-    const parsedQty = parseInt(rawStock, 10)
-    const hasStock = !Number.isNaN(parsedQty) && parsedQty > 0
-
-    const qty = isMoreThanTen ? 11 : hasStock ? parsedQty : 0
-    const available = isMoreThanTen || hasStock ? 'Y' : 'N'
-
-    return { qty, available }
-  }
-
   private generateXml(
     supplierItems: ParsedSupplierItem[],
     itemsMap: Map<string, Awaited<ReturnType<this['fetchData']>>[number]>
@@ -97,5 +86,16 @@ export class RozetkaService implements OnModuleInit {
     }
 
     return doc.end({ prettyPrint: true })
+  }
+
+  private parseStockData(rawStock: string) {
+    const isMoreThanTen = rawStock === '> 10'
+    const parsedQty = parseInt(rawStock, 10)
+    const hasStock = !Number.isNaN(parsedQty) && parsedQty > 0
+
+    const qty = isMoreThanTen ? 11 : hasStock ? parsedQty : 0
+    const available = isMoreThanTen || hasStock ? 'Y' : 'N'
+
+    return { qty, available }
   }
 }

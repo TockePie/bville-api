@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common'
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common'
 
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
 import type { RequestWithCookies } from '../../types/request-with-cookies'
@@ -17,6 +17,11 @@ export class ManagerController {
   @Get('order')
   async getOrdersForTable(@Query() query: OrderQueryDto) {
     return await this.orderService.getOrdersForTable(query)
+  }
+
+  @Get('order/:guid')
+  async getOrderByGuid(@Param('guid') guid: string) {
+    return await this.orderService.getOrderByGuid(guid)
   }
 
   @Get('manager/info')

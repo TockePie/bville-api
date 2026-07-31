@@ -1,6 +1,10 @@
 import { Readable } from 'node:stream'
 
-import { BadRequestException, Injectable } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common'
 
 import { CatchPrisma } from '../../common/decorators/catch-prisma-error.decorator'
 import { PrismaService } from '../../database/prisma.service'
@@ -33,7 +37,8 @@ export class OrderService {
         { customerName: { contains: search } },
         { deliveryPhone: { contains: search } },
         { partnerOrderId: { contains: search } },
-        { tracking_number: { contains: search } }
+        { tracking_number: { contains: search } },
+        { deliveryCity: { contains: search } }
       ]
     }
 
@@ -45,12 +50,14 @@ export class OrderService {
         orderBy: {
           [sortBy]: sortOrder
         },
-        include: {
-          orderItems: true,
-          orderFiles: true
-          // _count: {
-          //   select: { orderItems: true, orderFiles: true }
-          // }
+        select: {
+          guid: true,
+          status: true,
+          partnerOrderId: true,
+          customerName: true,
+          deliveryPhone: true,
+          cashOnDelivery: true,
+          updatedAt: true
         }
       }),
       this.prisma.order.count({ where })
@@ -63,6 +70,22 @@ export class OrderService {
       pageSize,
       totalPages: Math.ceil(totalCount / pageSize)
     }
+  }
+
+  async getOrderByGuid(guid: string) {
+    const order = await this.prisma.order.findUnique({
+      where: {
+        guid
+      },
+      include: {
+        orderItems: true,
+        orderFiles: true
+      }
+    })
+
+    if (!order) throw new NotFoundException()
+
+    return order
   }
 
   @CatchPrisma({ P2002: 'Товар з таким partnerOrderId вже існує' })
