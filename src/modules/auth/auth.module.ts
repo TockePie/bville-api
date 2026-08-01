@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
 
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard'
+import { RobotGuard } from '../../common/guards/robot.guard'
 import { EnvConfig } from '../../config/env.schema'
 import { ManagerModule } from '../manager/manager.module'
 import { AuthController } from './auth.controller'
@@ -22,7 +23,7 @@ import { AuthService } from './auth.service'
     forwardRef(() => ManagerModule)
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAuthGuard],
-  exports: [JwtAuthGuard, JwtModule]
+  providers: [AuthService, JwtAuthGuard, RobotGuard],
+  exports: [JwtAuthGuard, JwtModule, RobotGuard]
 })
 export class AuthModule {}

@@ -16,6 +16,15 @@ export interface ParsedSupplierItem {
   rrc: string
 }
 
+const COLUMNS = {
+  CODE: 0,
+  BARCODE: 1,
+  TITLE: 2,
+  STOCK: 4,
+  PRICE: 6,
+  RRC: 11
+} as const
+
 @Injectable()
 export class SupplierParserService {
   private logger = new Logger(SupplierParserService.name)
@@ -55,15 +64,17 @@ export class SupplierParserService {
 
   private extractItemsFromHtm(htm: string): ParsedSupplierItem[] {
     const $ = load(htm)
-    const items: ParsedSupplierItem[] = []
 
-    $('tr.R8').each((_, element) => {
-      const item = this.mapRowToItem($, element)
+    const items = $('tr.R8')
+      .map((_, element) => this.mapRowToItem($, element))
+      .toArray()
 
-      if (item.code) {
-        items.push(item)
-      }
-    })
+    const validItems = items.filter((item) => item.code)
+    if (validItems.length === 0) {
+      this.logger.warn(
+        'No valid items were parsed. Has the supplier HTML structure changed?'
+      )
+    }
 
     return items
   }
@@ -72,16 +83,16 @@ export class SupplierParserService {
     const tds = $(element).find('td')
 
     return {
-      code: $(tds[0]).text().trim(),
-      barcode: $(tds[1]).text().trim(),
-      title: $(tds[2]).text().trim().replace(/^"|"$/g, ''),
-      rawStock: $(tds[4]).text().trim(),
-      price: this.cleanPrice($(tds[6]).find('span').text().trim()),
-      rrc: this.cleanPrice($(tds[11]).find('span').text().trim())
+      code: $(tds[COLUMNS.CODE]).text().trim(),
+      barcode: $(tds[COLUMNS.BARCODE]).text().trim(),
+      title: $(tds[COLUMNS.TITLE]).text().trim().replace(/^"|"$/g, ''),
+      rawStock: $(tds[COLUMNS.STOCK]).text().trim(),
+      price: this.cleanPrice($(tds[COLUMNS.PRICE]).find('span').text()),
+      rrc: this.cleanPrice($(tds[COLUMNS.RRC]).find('span').text())
     }
   }
 
   private cleanPrice(text: string): string {
-    return text.replace(/\s+/g, '').replace(/,/g, '.').trim()
+    return text.replace(/\s+/g, '').replace(/,/g, '.')
   }
 }
