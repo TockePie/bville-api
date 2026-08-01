@@ -13,7 +13,6 @@ import {
 @Injectable()
 export class RozetkaService implements OnModuleInit {
   private logger = new Logger(RozetkaService.name)
-  private readonly CACHE_KEY = 'supplier_products'
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -30,62 +29,60 @@ export class RozetkaService implements OnModuleInit {
     this.logger.log(
       `Fetching products to place them in the cache at ${Date.now()}`
     )
-    await this.refreshProductsCache()
+    await this.getProducts('xml')
+    await this.getProducts('json')
   }
 
-  async getProducts() {
-    const cachedData = await this.cacheManager.get<string>(this.CACHE_KEY)
+  async getProducts(format: 'json' | 'xml') {
+    const cacheKey =
+      format === 'json' ? 'supplier_products_json' : 'supplier_products_xml'
+    const cachedData = await this.cacheManager.get<string>(cacheKey)
 
-    if (!cachedData) {
-      return await this.refreshProductsCache()
+    if (cachedData) {
+      return cachedData
     }
 
-    return cachedData
-  }
+    const [supplierItems, dbDataMap] = await Promise.all([
+      this.supplierParserService.parseHtmPrices(),
+      this.fetchAndMapDbData()
+    ])
+    const transformedItems = this.transformItems(supplierItems, dbDataMap)
+    const result = this.serializeData(transformedItems, format)
 
-  private async refreshProductsCache() {
-    const supplierItems = await this.supplierParserService.parseHtmPrices()
-
-    const dbData = await this.fetchData()
-    const dbDataMap = new Map(dbData.map((item) => [item.code, item]))
-
-    const result = this.generateXml(supplierItems, dbDataMap)
-
-    await this.cacheManager.set(this.CACHE_KEY, result)
+    await this.cacheManager.set(cacheKey, result)
 
     return result
   }
 
-  async fetchData() {
-    return await this.prismaService.rozetkaProduct.findMany({
+  private async fetchAndMapDbData() {
+    const data = await this.prismaService.rozetkaProduct.findMany({
       omit: { createdAt: true, updatedAt: true }
     })
+
+    const dataMap = new Map(data.map((item) => [item.code, item]))
+    return dataMap
   }
 
-  private generateXml(
+  private transformItems(
     supplierItems: ParsedSupplierItem[],
-    itemsMap: Map<string, Awaited<ReturnType<this['fetchData']>>[number]>
+    dbDataMap: Awaited<
+      ReturnType<typeof RozetkaService.prototype.fetchAndMapDbData>
+    >
   ) {
-    const doc = create({ encoding: 'UTF-8' }).ele('items')
-
-    for (const item of supplierItems) {
+    return supplierItems.map((item) => {
       const { rawStock, ...product } = item
-
-      const dbItem = itemsMap.get(item.code)
-
+      const dbItem = dbDataMap.get(item.code)
       const { qty, available } = this.parseStockData(rawStock)
 
-      doc.ele('item').ele({
+      return {
         ...product,
         rzcode: dbItem?.RZ_code ?? '',
         cat: dbItem?.category ?? '',
         brand: dbItem?.brand ?? '',
         qty,
         available
-      })
-    }
-
-    return doc.end({ prettyPrint: true })
+      }
+    })
   }
 
   private parseStockData(rawStock: string) {
@@ -97,5 +94,20 @@ export class RozetkaService implements OnModuleInit {
     const available = isMoreThanTen || hasStock ? 'Y' : 'N'
 
     return { qty, available }
+  }
+
+  private serializeData(
+    items: ReturnType<typeof RozetkaService.prototype.transformItems>,
+    format: 'json' | 'xml'
+  ): string {
+    if (format === 'json') {
+      return JSON.stringify({ items }, null, 2)
+    }
+
+    const doc = create({ encoding: 'UTF-8' }).ele('items')
+    for (const item of items) {
+      doc.ele('item').ele(item)
+    }
+    return doc.end({ prettyPrint: true })
   }
 }

@@ -9,6 +9,11 @@ export class RozetkaController {
   @Get('products.xml')
   @Header('Content-Type', 'application/xml')
   async getProducts() {
-    return await this.rozetkaService.getProducts()
+    return await this.rozetkaService.getProducts('xml')
+  }
+
+  @Get('products.json')
+  async getJsonProducts() {
+    return await this.rozetkaService.getProducts('json')
   }
 }
