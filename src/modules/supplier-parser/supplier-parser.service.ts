@@ -12,6 +12,7 @@ export interface ParsedSupplierItem {
   barcode: string
   title: string
   rawStock: string
+  url: string
   price: string
   rrc: string
 }
@@ -21,6 +22,7 @@ const COLUMNS = {
   BARCODE: 1,
   TITLE: 2,
   STOCK: 4,
+  URL: 5,
   PRICE: 6,
   RRC: 11
 } as const
@@ -87,6 +89,7 @@ export class SupplierParserService {
       barcode: $(tds[COLUMNS.BARCODE]).text().trim(),
       title: $(tds[COLUMNS.TITLE]).text().trim().replace(/^"|"$/g, ''),
       rawStock: $(tds[COLUMNS.STOCK]).text().trim(),
+      url: $(tds[COLUMNS.URL]).text().trim(),
       price: this.cleanPrice($(tds[COLUMNS.PRICE]).find('span').text()),
       rrc: this.cleanPrice($(tds[COLUMNS.RRC]).find('span').text())
     }

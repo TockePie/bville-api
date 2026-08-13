@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common'
+import { parsePhoneNumber } from 'libphonenumber-js/min'
 
 import { CatchPrisma } from '../../common/decorators/catch-prisma-error.decorator'
 import { PrismaService } from '../../database/prisma.service'
@@ -63,8 +64,13 @@ export class OrderService {
       this.prisma.order.count({ where })
     ])
 
+    const ordersWithPhone = orders.map((order) => ({
+      ...order,
+      phoneDisplay: this.parsePhoneNumber(order.deliveryPhone)
+    }))
+
     return {
-      orders,
+      ordersWithPhone,
       totalCount,
       page,
       pageSize,
@@ -85,7 +91,10 @@ export class OrderService {
 
     if (!order) throw new NotFoundException()
 
-    return order
+    return {
+      ...order,
+      phoneDisplay: this.parsePhoneNumber(order.deliveryPhone)
+    }
   }
 
   @CatchPrisma({ P2002: 'Товар з таким partnerOrderId вже існує' })
@@ -212,5 +221,11 @@ export class OrderService {
       file_guid: fileGuid,
       message: 'Файл успішно завантажено'
     }
+  }
+
+  parsePhoneNumber(phone: string) {
+    const phoneNumber = parsePhoneNumber(phone, 'UA')
+    if (!phoneNumber.isValid()) return null
+    return phoneNumber
   }
 }
