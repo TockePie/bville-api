@@ -70,7 +70,7 @@ export class OrderService {
     }))
 
     return {
-      ordersWithPhone,
+      orders: ordersWithPhone,
       totalCount,
       page,
       pageSize,
@@ -223,9 +223,9 @@ export class OrderService {
     }
   }
 
-  parsePhoneNumber(phone: string) {
+  private parsePhoneNumber(phone: string) {
     const phoneNumber = parsePhoneNumber(phone, 'UA')
     if (!phoneNumber.isValid()) return null
-    return phoneNumber
+    return phoneNumber.formatInternational()
   }
 }
